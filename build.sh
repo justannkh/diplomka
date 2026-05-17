@@ -10,3 +10,6 @@ python manage.py collectstatic --noinput
 python manage.py migrate --noinput
 
 echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.filter(username='Ankh').exists() or User.objects.create_superuser('Ankh', 'admin@example.com', '123503623ANKh')" | python manage.py shell
+
+echo "=== Populating database with products ==="
+python populate_data.py

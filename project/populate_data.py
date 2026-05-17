@@ -103,7 +103,7 @@ for p_data in products_data:
     cat = categories_map[cat_slug]
     product, created = Product.objects.get_or_create(
         slug=p_data['slug'],
-        defaults={**p_data, 'category': cat}
+        defaults={**p_data, 'category': cat, 'image': f"products/{p_data['slug']}.png"}
     )
     if created:
         print(f'  Товар: {product.name} — {product.price} сом')
