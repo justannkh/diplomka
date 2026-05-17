@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Вход — DrinkShop{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+        <h1>Вход в аккаунт</h1>
+        <form method="post">
+            {% csrf_token %}
+            {% if request.GET.next %}
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+            {% endif %}
+
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% for error in field.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            {% if form.non_field_errors %}
+                <div class="form-error">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <button type="submit" class="btn btn--primary" style="width:100%;">
+                Войти
+            </button>
+        </form>
+        <div class="auth-card__link">
+            Ещё нет аккаунта? <a href="{% url 'store:register' %}">Зарегистрироваться</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

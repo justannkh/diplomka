@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if current_category %}{{ current_category.name }} — DrinkShop
+    {% elif query %}Поиск: {{ query }} — DrinkShop
+    {% else %}Каталог напитков — DrinkShop
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="catalog">
+
+    <aside class="sidebar">
+        <h3 class="sidebar__title">Категории</h3>
+        <ul class="sidebar__list">
+            <li>
+                <a href="{% url 'store:index' %}"
+                   class="sidebar__link {% if not current_category %}sidebar__link--active{% endif %}">
+                    Все напитки
+                </a>
+            </li>
+            {% for cat in categories %}
+                <li>
+                    <a href="?category={{ cat.slug }}"
+                       class="sidebar__link {% if current_category.slug == cat.slug %}sidebar__link--active{% endif %}">
+                        {{ cat.name }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <h3 class="sidebar__title">Сортировка</h3>
+        <ul class="sidebar__list">
+            <li>
+                <a href="?{% if current_category %}category={{ current_category.slug }}&{% endif %}sort=price_asc"
+                   class="sidebar__link {% if sort == 'price_asc' %}sidebar__link--active{% endif %}">
+                    Сначала дешёвые
+                </a>
+            </li>
+            <li>
+                <a href="?{% if current_category %}category={{ current_category.slug }}&{% endif %}sort=price_desc"
+                   class="sidebar__link {% if sort == 'price_desc' %}sidebar__link--active{% endif %}">
+                    Сначала дорогие
+                </a>
+            </li>
+            <li>
+                <a href="?{% if current_category %}category={{ current_category.slug }}&{% endif %}sort=name"
+                   class="sidebar__link {% if sort == 'name' %}sidebar__link--active{% endif %}">
+                    По названию
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <section class="products">
+        <h1 class="products__title">
+            {% if current_category %}{{ current_category.name }}
+            {% elif query %}Результаты поиска: «{{ query }}»
+            {% else %}Все напитки
+            {% endif %}
+            <small style="font-weight:400; color:var(--text-light); font-size:0.9rem;">
+                — {{ products|length }} шт.
+            </small>
+        </h1>
+
+        {% if products %}
+            <div class="products__grid">
+                {% for product in products %}
+                <article class="product-card">
+                    <a href="{% url 'store:product_detail' product.slug %}" class="product-card__image-link">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-card__image">
+                        {% else %}
+                            <div class="product-card__no-image">🥤</div>
+                        {% endif %}
+                    </a>
+                    <div class="product-card__info">
+                        <div class="product-card__category">{{ product.category.name }}</div>
+                        <h3 class="product-card__name">
+                            <a href="{% url 'store:product_detail' product.slug %}">{{ product.name }}</a>
+                        </h3>
+                        <div class="product-card__volume">{{ product.volume }}</div>
+                        <div class="product-card__bottom">
+                            <span class="product-card__price">{{ product.price|floatformat:"0" }} сом</span>
+                            <button type="button"
+                                    class="btn btn--cart add-to-cart"
+                                    data-url="{% url 'store:cart_add' product.id %}">
+                                В корзину
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                Ничего не найдено 😕
+                <br>
+                <a href="{% url 'store:index' %}" class="btn btn--primary">На главную</a>
+            </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

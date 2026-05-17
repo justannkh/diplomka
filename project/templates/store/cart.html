@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load store_tags %}
+
+{% block title %}Корзина — DrinkShop{% endblock %}
+
+{% block content %}
+<h1 class="products__title">Корзина</h1>
+
+{% if cart.items.all %}
+    <table class="cart-table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Товар</th>
+                <th>Цена</th>
+                <th>Количество</th>
+                <th>Сумма</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart.items.all %}
+            <tr class="cart-table__row">
+                <td style="width:80px;">
+                    {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}"
+                             style="width:70px; height:70px; object-fit:cover; border-radius:8px;">
+                    {% else %}
+                        <div style="width:70px; height:70px; background:#f1f5f9; border-radius:8px;
+                                    display:flex; align-items:center; justify-content:center; font-size:1.8rem;">🥤</div>
+                    {% endif %}
+                </td>
+                <td class="cart-table__product">
+                    <a href="{% url 'store:product_detail' item.product.slug %}">{{ item.product.name }}</a>
+                    <small>{{ item.product.volume }} · {{ item.product.category.name }}</small>
+                </td>
+                <td>{{ item.product.price|floatformat:"0" }} сом</td>
+                <td>
+                    <div class="cart-table__qty">
+                        <form class="qty-form" method="post" action="{% url 'store:cart_update' item.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="decrease">
+                            <button type="submit" class="qty-btn">−</button>
+                        </form>
+                        <span class="qty-value">{{ item.quantity }}</span>
+                        <form class="qty-form" method="post" action="{% url 'store:cart_update' item.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="increase">
+                            <button type="submit" class="qty-btn">+</button>
+                        </form>
+                    </div>
+                </td>
+                <td><strong>{{ item.subtotal|floatformat:"0" }} сом</strong></td>
+                <td>
+                    <form method="post" action="{% url 'store:cart_update' item.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="remove">
+                        <button type="submit" class="qty-btn" title="Удалить">✕</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="cart__summary">
+        <div class="cart__total">
+            Итого: <strong>{{ cart.total_price|floatformat:"0" }} сом</strong>
+            ({{ cart.total_items }} шт.)
+        </div>
+        <div class="cart__actions">
+            <a href="{% url 'store:index' %}" class="btn btn--outline">← Продолжить покупки</a>
+            <a href="{% url 'store:checkout' %}" class="btn btn--primary">Оформить заказ →</a>
+        </div>
+    </div>
+{% else %}
+    <div class="empty-state">
+        Ваша корзина пуста 🛒
+        <br>
+        <a href="{% url 'store:index' %}" class="btn btn--primary">Перейти в каталог</a>
+    </div>
+{% endif %}
+{% endblock %}

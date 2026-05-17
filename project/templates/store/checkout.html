@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Оформление заказа — DrinkShop{% endblock %}
+
+{% block content %}
+<h1 class="products__title">Оформление заказа</h1>
+
+<div class="checkout">
+    <div class="checkout__form-wrap">
+        <h2>Данные для доставки</h2>
+        <form method="post" id="checkout-form">
+            {% csrf_token %}
+
+            {% for field in form %}
+                {% if field.name != 'payment_method' and field.name != 'card_number' %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="form-help">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <div class="form-error">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            <fieldset class="form-group form-group--payment">
+                <legend>Способ оплаты</legend>
+                {% for radio in form.payment_method %}
+                    <label class="payment-option">
+                        {{ radio.tag }}
+                        <span>{{ radio.choice_label }}</span>
+                    </label>
+                {% endfor %}
+                {% for error in form.payment_method.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </fieldset>
+
+            <div class="form-group" id="card-field" style="display:none;">
+                <label for="{{ form.card_number.id_for_label }}">
+                    {{ form.card_number.label }}
+                </label>
+                {{ form.card_number }}
+                {% if form.card_number.help_text %}
+                    <small class="form-help">{{ form.card_number.help_text }}</small>
+                {% endif %}
+                {% for error in form.card_number.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="form-error">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <button type="submit" class="btn btn--primary btn--large" style="width:100%;">
+                Подтвердить заказ
+            </button>
+        </form>
+    </div>
+
+    <aside class="checkout__summary">
+        <h2>Ваш заказ</h2>
+        <ul class="checkout__items">
+            {% for item in cart.items.all %}
+                <li>
+                    <span>{{ item.product.name }} × {{ item.quantity }}</span>
+                    <strong>{{ item.subtotal|floatformat:"0" }} сом</strong>
+                </li>
+            {% endfor %}
+        </ul>
+        <div class="checkout__total">
+            <strong>Итого: {{ cart.total_price|floatformat:"0" }} сом</strong>
+        </div>
+        <p style="margin-top:12px; font-size:0.85rem; color:var(--text-light);">
+            Доставка по Бишкеку — бесплатно. Онлайн-оплата реализована в
+            тестовом режиме (без реального списания средств).
+        </p>
+    </aside>
+</div>
+
+<script>
+    (function () {
+        var radios = document.querySelectorAll('input[name="payment_method"]');
+        var cardField = document.getElementById('card-field');
+
+        function sync() {
+            var selected = document.querySelector('input[name="payment_method"]:checked');
+            if (selected && selected.value === 'online') {
+                cardField.style.display = 'block';
+            } else {
+                cardField.style.display = 'none';
+            }
+        }
+
+        radios.forEach(function (r) { r.addEventListener('change', sync); });
+        sync();
+    })();
+</script>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% load static %}<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DrinkShop — напитки с доставкой по Бишкеку{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'store/css/style.css' %}">
+</head>
+<body>
+
+<header class="header">
+    <div class="container header__inner">
+        <a href="{% url 'store:index' %}" class="header__logo">🥤 DrinkShop</a>
+
+        <form class="header__search" method="get" action="{% url 'store:index' %}">
+            <input type="text" name="q" class="search-input"
+                   placeholder="Поиск напитков…" value="{{ request.GET.q|default:'' }}">
+            <button type="submit" class="btn btn--small">Найти</button>
+        </form>
+
+        <nav class="header__nav">
+            {% if user.is_authenticated %}
+                <a href="{% url 'store:order_history' %}" class="nav-link">Мои заказы</a>
+                <span class="nav-link">👤 {{ user.username }}</span>
+                <a href="{% url 'store:logout' %}" class="nav-link">Выход</a>
+            {% else %}
+                <a href="{% url 'store:login' %}" class="nav-link">Вход</a>
+                <a href="{% url 'store:register' %}" class="nav-link">Регистрация</a>
+            {% endif %}
+            <a href="{% url 'store:cart' %}" class="nav-link cart-link">
+                🛒 Корзина<span id="cart-badge" class="cart-badge">{{ cart_items_count }}</span>
+            </a>
+        </nav>
+    </div>
+</header>
+
+{% if messages %}
+<div class="messages container">
+    {% for message in messages %}
+        <div class="alert alert--{{ message.tags|default:'info' }}">
+            {{ message }}
+            <button type="button" class="alert__close" onclick="this.parentElement.remove()">✕</button>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<main class="main">
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        © {% now "Y" %} DrinkShop — напитки с доставкой по Бишкеку ·
+        <a href="tel:+996555123456">+996 555 123 456</a>
+    </div>
+</footer>
+
+<div id="toast" class="toast"></div>
+
+<script src="{% static 'store/js/main.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои заказы — DrinkShop{% endblock %}
+
+{% block content %}
+<h1 class="products__title">Мои заказы</h1>
+
+{% if orders %}
+    <div class="orders-list">
+        {% for order in orders %}
+            <div class="order-card">
+                <div class="order-card__header">
+                    <div>
+                        <span class="order-card__id">Заказ #{{ order.pk }}</span>
+                        <span class="order-card__date">· {{ order.created_at|date:"d.m.Y H:i" }}</span>
+                    </div>
+                    <span class="order-card__status order-card__status--{{ order.status }}">
+                        {{ order.get_status_display }}
+                    </span>
+                </div>
+                <div class="order-card__body">
+                    <ul>
+                        {% for item in order.items.all %}
+                            <li>
+                                {{ item.product_name }} × {{ item.quantity }} —
+                                {{ item.subtotal|floatformat:"0" }} сом
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <p style="margin-top:8px; color:var(--text-light); font-size:0.85rem;">
+                        Адрес: {{ order.address }}
+                    </p>
+                </div>
+                <div class="order-card__footer">
+                    <div>
+                        <strong>Итого: {{ order.total_price|floatformat:"0" }} сом</strong>
+                        <br>
+                        <small style="color:var(--text-light);">
+                            {{ order.get_payment_method_display }} —
+                            {{ order.get_payment_status_display }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        У вас пока нет заказов 📦
+        <br>
+        <a href="{% url 'store:index' %}" class="btn btn--primary">Перейти в каталог</a>
+    </div>
+{% endif %}
+{% endblock %}

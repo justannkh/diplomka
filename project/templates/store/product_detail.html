@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} — DrinkShop{% endblock %}
+
+{% block content %}
+<div class="product-detail">
+    <div class="product-detail__image-wrap">
+        {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-detail__image">
+        {% else %}
+            <div class="product-detail__no-image">🥤</div>
+        {% endif %}
+    </div>
+
+    <div class="product-detail__info">
+        <div class="product-detail__category">{{ product.category.name }}</div>
+        <h1 class="product-detail__name">{{ product.name }}</h1>
+        <div class="product-detail__volume">Объём: {{ product.volume }}</div>
+
+        <p class="product-detail__desc">{{ product.description }}</p>
+
+        <div class="product-detail__price-row">
+            <span class="product-card__price" style="font-size:1.6rem;">
+                {{ product.price|floatformat:"0" }} сом
+            </span>
+            {% if product.in_stock %}
+                <button type="button"
+                        class="btn btn--primary btn--large add-to-cart"
+                        data-url="{% url 'store:cart_add' product.id %}">
+                    🛒 В корзину
+                </button>
+            {% else %}
+                <span class="btn btn--danger btn--large" style="cursor:default;">Нет в наличии</span>
+            {% endif %}
+            <a href="{% url 'store:index' %}" class="btn btn--outline">← К каталогу</a>
+        </div>
+    </div>
+</div>
+
+{% if related %}
+<section>
+    <h2 class="products__title">Похожие товары</h2>
+    <div class="products__grid">
+        {% for product in related %}
+        <article class="product-card">
+            <a href="{% url 'store:product_detail' product.slug %}" class="product-card__image-link">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-card__image">
+                {% else %}
+                    <div class="product-card__no-image">🥤</div>
+                {% endif %}
+            </a>
+            <div class="product-card__info">
+                <div class="product-card__category">{{ product.category.name }}</div>
+                <h3 class="product-card__name">
+                    <a href="{% url 'store:product_detail' product.slug %}">{{ product.name }}</a>
+                </h3>
+                <div class="product-card__volume">{{ product.volume }}</div>
+                <div class="product-card__bottom">
+                    <span class="product-card__price">{{ product.price|floatformat:"0" }} сом</span>
+                    <button type="button"
+                            class="btn btn--cart add-to-cart"
+                            data-url="{% url 'store:cart_add' product.id %}">
+                        В корзину
+                    </button>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}

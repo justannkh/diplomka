@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Заказ оформлен — DrinkShop{% endblock %}
+
+{% block content %}
+<div class="success-page">
+    <div class="success-card">
+        {% if order.payment_status == 'paid' %}
+            <div style="font-size:4rem;">✅</div>
+            <h1>Заказ оплачен и принят в работу!</h1>
+        {% elif order.payment_status == 'failed' %}
+            <div style="font-size:4rem;">⚠️</div>
+            <h1>Заказ оформлен, но оплата не прошла</h1>
+        {% else %}
+            <div style="font-size:4rem;">🧾</div>
+            <h1>Заказ успешно оформлен!</h1>
+        {% endif %}
+
+        <p>Номер вашего заказа: <strong>#{{ order.pk }}</strong></p>
+        <p style="color:var(--text-light);">
+            Мы свяжемся с вами по номеру {{ order.phone }} для подтверждения.
+        </p>
+
+        <div class="success-details">
+            <h3>Детали заказа</h3>
+            <ul>
+                {% for item in order.items.all %}
+                    <li>
+                        {{ item.product_name }} × {{ item.quantity }} —
+                        <strong>{{ item.subtotal|floatformat:"0" }} сом</strong>
+                    </li>
+                {% endfor %}
+            </ul>
+            <div class="success-total">
+                Итого: <strong>{{ order.total_price|floatformat:"0" }} сом</strong>
+            </div>
+
+            <div class="success-payment" style="margin-top:14px; padding:10px 14px; border-radius:8px; background:var(--bg-soft, #f5f5f5);">
+                <strong>Способ оплаты:</strong> {{ order.get_payment_method_display }}<br>
+                <strong>Статус оплаты:</strong>
+                <span>{{ order.get_payment_status_display }}</span>
+                {% if order.transaction_id %}
+                    <br><small style="color:var(--text-light);">
+                        ID транзакции: {{ order.transaction_id }}
+                    </small>
+                {% endif %}
+            </div>
+
+            <p style="font-size:0.9rem; color:var(--text-light); margin-top:8px;">
+                Доставка по адресу: {{ order.address }}
+            </p>
+        </div>
+
+        <div class="success-actions">
+            <a href="{% url 'store:index' %}" class="btn btn--primary">Вернуться в каталог</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'store:order_history' %}" class="btn btn--outline">Мои заказы</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
